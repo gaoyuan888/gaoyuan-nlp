@@ -216,10 +216,7 @@ print("train_pad",train_pad[33])
 
 
 # 准备target向量，前2000样本为1，后2000为0
-train_target = np.concatenate( (np.ones(2000),np.zeros(2000)) )
-
-
-
+train_target = np.concatenate((np.ones(len(pos_txts)),np.zeros(len(neg_txts))))
 
 # 进行训练和测试样本的分割
 from sklearn.model_selection import train_test_split
