@@ -14,8 +14,7 @@ app = Flask(__name__)
 from tensorflow.python.keras.models import load_model
 from tensorflow.python.keras.preprocessing.sequence import pad_sequences
 from keras.models import model_from_json
-model2 = load_model('my_model.h5')
-cn_model = KeyedVectors.load_word2vec_format('sgns.zhihu.bigram', binary=False)
+cn_model = KeyedVectors.load_word2vec_format('conf/sgns.zhihu.bigram', binary=False)
 
 # 4.找出相近的词语，余弦相似度
 similar_1= cn_model.most_similar(positive=['大学'],topn=10)
@@ -29,7 +28,7 @@ print('在'+test_words+"中，不是同一类的词为：%s"%test_words_res)
 #加载模型
 
 # model2 = keras.models.load_model('my_model.h5')
-model2 = load_model('my_model.h5')
+model2 = load_model('conf/nlp_model.h5')
 model2.summary()
 def predict_sentiment(text):
     # 去标点
