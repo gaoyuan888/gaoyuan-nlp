@@ -19,7 +19,7 @@ from tensorflow.python.keras.optimizers import Adam
 from tensorflow.python.keras.callbacks import EarlyStopping, ModelCheckpoint, TensorBoard, ReduceLROnPlateau
 
 # 一、词向量模型
-cn_model = KeyedVectors.load_word2vec_format('sgns.zhihu.bigram', binary=False)
+cn_model = KeyedVectors.load_word2vec_format('../conf/sgns.zhihu.bigram', binary=False)
 
 # 1.词向量维度，一个词向用300个维度向量表示，embedding_dim=300
 embedding_dim= cn_model['山东大学'].shape[0]
@@ -54,10 +54,12 @@ print("word",word);
 
 # 二、样本训练
 import os
+
+path_prefix="data"
 # 1.获取样本索引，样本存放在两个文件夹下面
 # 每个文件是一个评价
-pos_txts=os.listdir("pos")
-neg_txts=os.listdir("neg")
+pos_txts=os.listdir(path_prefix+"/pos")
+neg_txts=os.listdir(path_prefix+"/neg")
 print("样本总共"+str(len(pos_txts)+len(neg_txts))+"条");
 
 # 2.现在我们将所有的评价内容放置到一个list里
@@ -67,12 +69,12 @@ train_texts_orig = []
 # 添加完所有样本之后，train_texts_orig为一个含有4000条文本的list
 # 其中前2000条文本为正面评价，后2000条为负面评价
 for i in range(len(pos_txts)):
-    with open('pos/'+pos_txts[i], 'r', errors='ignore') as f:
+    with open(path_prefix+'/pos/'+pos_txts[i], 'r', errors='ignore') as f:
         text = f.read().strip()
         train_texts_orig.append(text)
         f.close()
 for i in range(len(neg_txts)):
-    with open('neg/'+neg_txts[i], 'r', errors='ignore') as f:
+    with open(path_prefix+'/neg/'+neg_txts[i], 'r', errors='ignore') as f:
         text = f.read().strip()
         train_texts_orig.append(text)
         f.close()
@@ -99,16 +101,16 @@ for text in train_texts_orig:
     train_tokens.append(cut_list)
 
 # 4.获得所有tokens的长度
-num_tokens = [ len(tokens) for tokens in train_tokens ]
+num_tokens = [len(tokens) for tokens in train_tokens]
 num_tokens = np.array(num_tokens)
 
 # 5.平均tokens的长度
 avglen=np.mean(num_tokens)
-print("avglen",avglen)
+print("所有词的平均长度",avglen)
 
 # 6.最长的评价tokens的长度
 maxlen=np.max(num_tokens)
-print("maxlen",maxlen)
+print("最长的文本长度",maxlen)
 
 
 # 7.观察一下样本分布情况
@@ -131,12 +133,12 @@ plt.show()
 # 假设tokens长度的分布为正态分布，则max_tokens这个值可以涵盖95%左右的样本
 max_tokens = np.mean(num_tokens) + 2 * np.std(num_tokens)
 max_tokens = int(max_tokens)
-print("max_tokens",max_tokens)
+print("覆盖百分之九十五的文本长度",max_tokens)
 
 # 10.取tokens的长度为236时，大约95%的样本被涵盖
 # 我们对长度不足的进行padding，超长的进行修剪
 pricent= np.sum( num_tokens < max_tokens ) / len(num_tokens)
-print("pricent",pricent)
+print("取值文本长度覆盖样本长度百分比",pricent)
 
 # 11.用来将tokens转换为文本
 def reverse_tokens(tokens):
@@ -274,7 +276,7 @@ model.compile(loss='binary_crossentropy',
 # 我们来看一下模型的结构，一共90k左右可训练的变量
 model.summary()
 
-path_checkpoint = 'sentiment_checkpoint.keras'
+path_checkpoint = 'output/sentiment_checkpoint.keras'
 # 回调函数1 建立一个权重的存储点，save_weights_only标识只保存权重，save_best_only表示 当var_loss 有改善的时候才会储存权重，否则不保存
 checkpoint = ModelCheckpoint(filepath=path_checkpoint, monitor='val_loss',
                                       verbose=1, save_weights_only=True,
@@ -313,7 +315,7 @@ model.fit(X_train, y_train,
 result = model.evaluate(X_test, y_test)
 print('Accuracy:{0:.2%}'.format(result[1]))
 
-model.save('my_model.h5')
+model.save('output/nlp_model.h5')
 json_string = model.to_json()
 print("json_string",json_string)
 # 定义一个函数，来预测我们自己的文本
@@ -346,7 +348,10 @@ def predict_sentiment(text):
 test_list = [
     '酒店设施不是新的，服务态度很不好',
     '纯粹一个大傻逼，在医院估计也是狗杂种问你病情你问我想要啥药我给你开狗娘省的要你妈',
-    '酒店卫生条件非常不好'
+    '酒店卫生条件非常不好',
+    '耐心细心，医生回复及时',
+    '很有水平，感谢医生，回复很快，',
+    '谢谢，有问必答，一针见血，回答的都是需要的！'
 ]
 # 预测结果
 for text in test_list:
