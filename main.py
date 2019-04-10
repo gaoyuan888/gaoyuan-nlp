@@ -32,7 +32,7 @@ model2 = load_model('conf/nlp_model.h5')
 model2.summary()
 def predict_sentiment(text):
     # 去标点
-    text = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+", "",text)
+    # text = re.sub("[\s+\.\!\/_,$%^*(+\"\']+|[+——！，。？、~@#￥%……&*（）]+", "",text)
     # 分词
     cut = jieba.cut(text)
     cut_list = [ i for i in cut ]
@@ -43,7 +43,7 @@ def predict_sentiment(text):
         except KeyError:
             cut_list[i] = 0
     # padding
-    tokens_pad = pad_sequences([cut_list], maxlen=236,
+    tokens_pad = pad_sequences([cut_list], maxlen=191,
                                padding='pre', truncating='pre')
     # 预测
     result = model2.predict(x=tokens_pad)
