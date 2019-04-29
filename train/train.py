@@ -29,7 +29,7 @@ array=cn_model['山东大学']
 print("array",array)
 
 # 2.相似度，余弦相似度
-similar=cn_model.similarity('橘子','橙子')
+similar=cn_model.similarity('感冒','橘子')
 print("similar",similar)
 # 余弦相似度计算方法    点积（矩阵/范数，矩阵/范数）  dot(["橘子"]/|["橘子"],["橘子"]/|["橘子"])
 similar_=np.dot(cn_model["橘子"]/np.linalg.norm(cn_model["橘子"]),cn_model["橙子"]/np.linalg.norm(cn_model["橙子"]))
